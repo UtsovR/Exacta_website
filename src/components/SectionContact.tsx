@@ -1,7 +1,7 @@
 ﻿import { FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Send } from 'lucide-react';
-import { contactDetails } from '../utils/content';
+import { CONTACT_EMAIL, contactDetails } from '../utils/content';
 import { fadeUp, stagger } from '../utils/motion';
 
 export default function SectionContact() {
@@ -78,7 +78,16 @@ export default function SectionContact() {
               </div>
               <div className="flex items-center gap-3">
                 <Send className="text-white/70" size={18} />
-                <p>{contactDetails.email}</p>
+                <p>
+                  <span className="mr-1">{contactDetails.email}</span>
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}?subject=Inquiry%20from%20Website&body=Hello%20Exacta%20Web%20Solution,`}
+                    aria-label="Email Exacta Web Solution"
+                    className="transition-colors duration-200 hover:text-primaryNeon cursor-pointer"
+                  >
+                    {CONTACT_EMAIL}
+                  </a>
+                </p>
               </div>
             </div>
             <div className="overflow-hidden rounded-xl border border-white/10 bg-black/50 shadow-card">

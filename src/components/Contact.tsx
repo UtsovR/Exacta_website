@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail } from 'lucide-react';
-import { contactDetails } from '../content/data';
+import { CONTACT_EMAIL, contactDetails } from '../content/data';
 import { fadeUp, stagger } from '../utils/motion';
 import MapEmbed from './MapEmbed';
 
@@ -43,7 +43,16 @@ export default function Contact() {
               </p>
               <p className="flex items-center gap-3">
                 <Mail size={16} className="shrink-0 text-primaryNeon" />
-                <span>{contactDetails.email}</span>
+                <span>
+                  <span className="mr-1">{contactDetails.email}</span>
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}?subject=Inquiry%20from%20Website&body=Hello%20Exacta%20Web%20Solution,`}
+                    aria-label="Email Exacta Web Solution"
+                    className="transition-colors duration-200 hover:text-primaryNeon cursor-pointer"
+                  >
+                    {CONTACT_EMAIL}
+                  </a>
+                </span>
               </p>
             </div>
 

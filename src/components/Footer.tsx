@@ -1,5 +1,5 @@
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
-import { contactDetails } from '../content/data';
+import { CONTACT_EMAIL, contactDetails } from '../content/data';
 
 const quickLinks = [
   { href: '#expertise', label: 'Expertise' },
@@ -33,7 +33,16 @@ export default function Footer() {
                 7595 045 107
               </a>
             </p>
-            <p>{contactDetails.email}</p>
+            <p>
+              <span className="mr-1">{contactDetails.email}</span>
+              <a
+                href={`mailto:${CONTACT_EMAIL}?subject=Inquiry%20from%20Website&body=Hello%20Exacta%20Web%20Solution,`}
+                aria-label="Email Exacta Web Solution"
+                className="transition-colors duration-200 hover:text-primaryNeon cursor-pointer"
+              >
+                {CONTACT_EMAIL}
+              </a>
+            </p>
           </div>
 
           <div className="space-y-3">
