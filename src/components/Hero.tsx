@@ -39,7 +39,12 @@ export default function Hero({ onCTA }: { onCTA: () => void }) {
           loop
           playsInline
           preload="auto"
+          onCanPlay={() => setIsReady(true)}
           onLoadedData={() => setIsReady(true)}
+          onError={(event) => {
+            console.error('Hero video failed to load', event);
+            setIsReady(true);
+          }}
           aria-hidden
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
