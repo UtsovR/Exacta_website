@@ -16,8 +16,6 @@ const socialLinks = [
 ];
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
     <footer className="border-t border-white/8 bg-surface/90 py-6">
       <div className="container-tight space-y-8">
@@ -92,7 +90,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/8 pt-5 text-sm text-white/58">
-          &copy; {currentYear} Exacta Web Solution. All rights reserved.
+          &copy; 2025 Exacta Web Solution. All rights reserved.
         </div>
       </div>
     </footer>
