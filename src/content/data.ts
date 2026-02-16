@@ -42,7 +42,7 @@ import {
 export const heroCopy = {
   headline: 'Digital Marketing That Turns Attention Into Action',
   sub: 'Ads, Social, Design & Websites engineered to convert.',
-  trust: ['Conversion-first', 'Performance-led', 'Creative-driven']
+  trust: ['Built for Growth', 'Driven by Strategy', 'Designed to Convert']
 };
 
 export const services: Service[] = [
