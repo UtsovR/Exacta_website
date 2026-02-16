@@ -34,11 +34,12 @@ export default function Hero({ onCTA }: { onCTA: () => void }) {
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out ${
             isReady ? 'opacity-100' : 'opacity-0'
           }`}
+          style={{ willChange: 'transform' }}
           autoPlay={shouldPlay}
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           onCanPlay={() => setIsReady(true)}
           onLoadedData={() => setIsReady(true)}
           onError={(event) => {
@@ -47,7 +48,8 @@ export default function Hero({ onCTA }: { onCTA: () => void }) {
           }}
           aria-hidden
         >
-          <source src="/videos/hero.mp4" type="video/mp4" />
+          <source src="/Video_assets/5.webm" type="video/webm" />
+          <source src="/Video_assets/4.mp4" type="video/mp4" />
         </video>
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 h-3 bg-gradient-to-b from-transparent to-[#05070c] md:h-4 lg:h-5"
