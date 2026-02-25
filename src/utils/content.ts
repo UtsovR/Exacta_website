@@ -74,7 +74,7 @@ export const feedbackSamples = [
   'Add case studies'
 ];
 
-export const CONTACT_EMAIL = 'support@exactaweb.com';
+export const CONTACT_EMAIL = 'support@exactawebsolution.com';
 
 export const contactDetails = {
   address: '4/36A, Chanditala Lane, Tollygunge, Kolkata, West Bengal',
