@@ -99,7 +99,12 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/8 pt-5 text-sm text-white/58">
-          &copy; 2025 Exacta Web Solution. All rights reserved.
+          <p>&copy; 2025 Exacta Web Solution. All rights reserved.</p>
+          <p className="mt-2">
+            <a href="/admin" className="cursor-pointer text-xs opacity-30 transition duration-300 hover:opacity-70">
+              Admin
+            </a>
+          </p>
         </div>
       </div>
     </footer>

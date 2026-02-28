@@ -93,6 +93,15 @@ The project will run locally at:
 
 http://localhost:5173
 
+Environment Variables
+
+Create a root-level `.env` file (same level as `package.json`) with:
+
+VITE_SUPABASE_URL=YOUR_SUPABASE_PROJECT_URL
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+
+For production on Netlify, add these same variables in Site Settings -> Environment Variables.
+
 Production Build
 
 To create a production build:

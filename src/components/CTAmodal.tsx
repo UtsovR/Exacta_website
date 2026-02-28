@@ -1,6 +1,7 @@
-﻿import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 
 interface CTAmodalProps {
   open: boolean;
@@ -15,6 +16,9 @@ export default function CTAmodal({ open, onClose }: CTAmodalProps) {
     company: '',
     need: 'Need: Web & Dev'
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -24,10 +28,50 @@ export default function CTAmodal({ open, onClose }: CTAmodalProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [open, onClose]);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (!open) {
+      setIsSubmitting(false);
+      setIsSubmitted(false);
+      setSubmitError('');
+    }
+  }, [open]);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const submission = { ...formState };
-    void submission;
+
+    if (isSubmitting || isSubmitted) return;
+
+    const name = formState.name.trim();
+    const email = formState.email.trim();
+
+    if (!name || !email) {
+      setSubmitError('Name and email are required.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const { error } = await supabase.from('enquiries').insert({
+        name,
+        email,
+        phone: formState.phone.trim() || null,
+        company_website: formState.company.trim() || null,
+        need: formState.need
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Failed to submit enquiry:', error);
+      setSubmitError('Could not submit. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -74,7 +118,6 @@ export default function CTAmodal({ open, onClose }: CTAmodalProps) {
               />
               <input
                 type="tel"
-                required
                 placeholder="Enter your phone number"
                 pattern="^[+]?[0-9\\s-]+$"
                 title="Use digits, spaces, +, and hyphens only"
@@ -98,9 +141,23 @@ export default function CTAmodal({ open, onClose }: CTAmodalProps) {
                 <option className="bg-surface">Need: Paid Ads / Lead Gen</option>
                 <option className="bg-surface">Need: Design</option>
               </select>
-              <button type="submit" className="btn-primary w-full justify-center text-base">
-                Book my slot
+              <button
+                type="submit"
+                disabled={isSubmitting || isSubmitted}
+                className="btn-primary w-full justify-center text-base disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isSubmitted ? 'Submitted' : isSubmitting ? 'Submitting...' : 'Book my slot'}
               </button>
+              {isSubmitted && (
+                <p className="text-center text-xs text-emerald-300" role="status">
+                  Thanks, your enquiry has been submitted.
+                </p>
+              )}
+              {submitError && (
+                <p className="text-center text-xs text-red-300" role="alert">
+                  {submitError}
+                </p>
+              )}
             </form>
           </motion.div>
         </motion.div>
