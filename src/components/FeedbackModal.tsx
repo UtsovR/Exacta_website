@@ -1,5 +1,5 @@
-﻿import { FormEvent, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -9,18 +9,32 @@ interface FeedbackModalProps {
 }
 
 export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
+  const closeTimerRef = useRef<number | null>(null);
   const [formState, setFormState] = useState({
     name: '',
-    email: '',
     rating: '',
-    comment: ''
+    message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearCloseTimer();
+    };
+  }, []);
+
   useEffect(() => {
     if (!open) {
+      clearCloseTimer();
       setIsSubmitting(false);
       setIsSubmitted(false);
       setSubmitError('');
@@ -32,9 +46,9 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
 
     if (isSubmitting) return;
 
-    const comment = formState.comment.trim();
-    if (!comment) {
-      setSubmitError('Comment is required.');
+    const message = formState.message.trim();
+    if (!message) {
+      setSubmitError('Message is required.');
       return;
     }
 
@@ -48,9 +62,8 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
 
       const { error } = await supabase.from('feedback').insert({
         name: formState.name.trim() || null,
-        email: formState.email.trim() || null,
-        rating: Number.isFinite(parsedRating) ? parsedRating : null,
-        comment
+        message,
+        rating: Number.isFinite(parsedRating) ? parsedRating : null
       });
 
       if (error) {
@@ -59,11 +72,13 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
 
       setFormState({
         name: '',
-        email: '',
         rating: '',
-        comment: ''
+        message: ''
       });
       setIsSubmitted(true);
+      closeTimerRef.current = window.setTimeout(() => {
+        onClose();
+      }, 800);
     } catch (error) {
       console.error('Failed to submit feedback:', error);
       setSubmitError('Could not send feedback. Try again.');
@@ -104,9 +119,9 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
               className="mt-3 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-primaryNeon focus:outline-none"
               rows={2}
               placeholder="Type feedback..."
-              value={formState.comment}
+              value={formState.message}
               onChange={(e) => {
-                setFormState((prev) => ({ ...prev, comment: e.target.value }));
+                setFormState((prev) => ({ ...prev, message: e.target.value }));
                 setSubmitError('');
                 setIsSubmitted(false);
               }}
@@ -120,7 +135,7 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             </button>
             {isSubmitted && (
               <p className="mt-2 text-center text-xs text-emerald-300" role="status">
-                Thanks for your feedback.
+                Submitted successfully
               </p>
             )}
             {submitError && (

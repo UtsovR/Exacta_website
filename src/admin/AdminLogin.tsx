@@ -1,16 +1,69 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Lock, LogIn } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 
-interface AdminLoginProps {
-  notice?: string;
-}
-
-export default function AdminLogin({ notice = '' }: AdminLoginProps) {
+export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+  const navigate = useNavigate();
+
+  const checkAdminAccess = async () => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error('Admin login failed to read session:', sessionError);
+      return false;
+    }
+
+    const session = sessionData.session;
+    if (!session) {
+      return false;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error('Admin login failed to verify profile:', {
+        userId: session.user.id,
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+        hint: profileError.hint
+      });
+      return false;
+    }
+
+    return Boolean(profile?.is_admin);
+  };
+
+  useEffect(() => {
+    let active = true;
+
+    const checkExistingAccess = async () => {
+      const isAdmin = await checkAdminAccess();
+      if (!active) return;
+
+      if (isAdmin) {
+        navigate('/admin/dashboard', { replace: true });
+        return;
+      }
+
+      setIsCheckingAccess(false);
+    };
+
+    void checkExistingAccess();
+
+    return () => {
+      active = false;
+    };
+  }, [navigate]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -29,6 +82,15 @@ export default function AdminLogin({ notice = '' }: AdminLoginProps) {
       if (error) {
         throw error;
       }
+
+      const isAdmin = await checkAdminAccess();
+      if (!isAdmin) {
+        await supabase.auth.signOut();
+        setErrorMessage('Not authorized');
+        return;
+      }
+
+      navigate('/admin/dashboard', { replace: true });
     } catch (error) {
       console.error('Admin login failed:', error);
       setErrorMessage('Invalid email or password.');
@@ -36,6 +98,17 @@ export default function AdminLogin({ notice = '' }: AdminLoginProps) {
       setIsSubmitting(false);
     }
   };
+
+  if (isCheckingAccess) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-base text-white">
+        <div className="noise-layer" />
+        <main className="container-tight relative z-10 flex min-h-screen items-center justify-center">
+          <p className="text-sm text-white/65">Checking admin access...</p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-base text-white">
@@ -47,12 +120,6 @@ export default function AdminLogin({ notice = '' }: AdminLoginProps) {
             <h1 className="text-2xl font-semibold text-white">Admin Login</h1>
             <p className="text-sm text-white/65">Sign in with your authorized account.</p>
           </div>
-
-          {notice && (
-            <p className="mb-4 rounded-lg border border-red-400/25 bg-red-400/10 px-3 py-2 text-sm text-red-200" role="alert">
-              {notice}
-            </p>
-          )}
 
           <form className="space-y-3" onSubmit={handleSubmit}>
             <label className="block space-y-1">

@@ -14,9 +14,8 @@ type Testimonial = {
 
 type FeedbackRow = {
   name: string | null;
-  email: string | null;
+  message: string | null;
   rating: number | null;
-  comment: string | null;
 };
 
 const fallbackTestimonials: Testimonial[] = [
@@ -55,15 +54,14 @@ function IconFor({ icon }: { icon: Testimonial['icon'] }) {
   return <TrendingUp size={18} className="text-cyan-200 drop-shadow-[0_0_10px_rgba(109,220,255,0.4)]" />;
 }
 
-function toDisplayName(name: string | null, email: string | null) {
+function toDisplayName(name: string | null) {
   const trimmedName = name?.trim();
-  if (trimmedName) return trimmedName;
+  return trimmedName || 'Client';
+}
 
-  const trimmedEmail = email?.trim();
-  if (!trimmedEmail) return 'Anonymous Client';
-
-  const [localPart] = trimmedEmail.split('@');
-  return localPart || 'Anonymous Client';
+function truncateMessage(message: string, maxLength = 140) {
+  if (message.length <= maxLength) return message;
+  return `${message.slice(0, maxLength - 1)}...`;
 }
 
 function toChipText(rating: number | null) {
@@ -95,8 +93,7 @@ export default function TestimonialsCarouselSection() {
     const loadFeaturedTestimonials = async () => {
       const { data, error } = await supabase
         .from('feedback')
-        .select('name,email,rating,comment')
-        .eq('is_featured', true)
+        .select('name,message,rating')
         .order('created_at', { ascending: false })
         .limit(6);
 
@@ -111,13 +108,13 @@ export default function TestimonialsCarouselSection() {
 
       const mapped = ((data as FeedbackRow[] | null) ?? [])
         .map((row, index): Testimonial | null => {
-          const quote = row.comment?.trim() ?? '';
+          const quote = row.message?.trim() ?? '';
           if (!quote) return null;
 
           return {
             title: 'Client Feedback',
-            quote,
-            name: toDisplayName(row.name, row.email),
+            quote: truncateMessage(quote),
+            name: toDisplayName(row.name),
             chip: toChipText(row.rating),
             icon: toIcon(row.rating, index)
           };
@@ -207,7 +204,7 @@ export default function TestimonialsCarouselSection() {
                   <div className="relative z-10 mt-5 flex items-center justify-between">
                     <div className="space-y-1">
                       <p className="text-sm text-white/80">{item.name}</p>
-                      <p className="text-xs uppercase tracking-[0.2em] text-white/55">Client</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-white/55">CLIENT</p>
                     </div>
                     <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80">
                       <span className="h-1.5 w-1.5 rounded-full bg-primaryNeon" />
