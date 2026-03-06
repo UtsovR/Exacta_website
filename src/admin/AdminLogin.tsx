@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Lock, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
+import { getSupabaseErrorMessage, supabase } from '../lib/supabaseClient';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -86,14 +86,14 @@ export default function AdminLogin() {
       const isAdmin = await checkAdminAccess();
       if (!isAdmin) {
         await supabase.auth.signOut();
-        setErrorMessage('Not authorized');
+        setErrorMessage('This account is signed in, but it does not have admin access.');
         return;
       }
 
       navigate('/admin/dashboard', { replace: true });
     } catch (error) {
       console.error('Admin login failed:', error);
-      setErrorMessage('Invalid email or password.');
+      setErrorMessage(getSupabaseErrorMessage(error, 'Could not sign in right now. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }
